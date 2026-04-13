@@ -1,0 +1,416 @@
+{
+  "name": "My workflow 4",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -368,
+        16
+      ],
+      "id": "bfc2ea87-cd73-4292-8830-e77241497029",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "You are an expert AI researcher analyst specialized in tracking and summarizing the latest developments in artificial intelligence. Your task is to deliver concise and up-to-date news summaries that focus on the new AI model releases, research breakthroughs, and strategic moves by key AI players.",
+              "role": "system"
+            },
+            {
+              "content": "=Find and summarize the most visited AI news brackets within the last 24 hours. For reference, today is {{ $today }} . Prioritize research breakthroughs and key announcements by organizations like OpenAI, Anthropic, Google, Meta, Mistral, xAI, and Hugging Face."
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 2,
+      "position": [
+        -144,
+        16
+      ],
+      "id": "0c198f53-aa70-45ab-a6b1-27d854a72a1c",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5.2",
+          "mode": "id"
+        },
+        "responses": {
+          "values": [
+            {
+              "content": "=Here is today's AI news list from Perplexity. \n{{ JSON.stringify($json.search_results, null, 2) }}\nPlease, cross-check the news against the past news log sheet and remove duplicates. Remove duplicates from output even if they were reported from different sources. Take some time to infer the past news in the sheet to ensure no duplication. Since news might be worded differently, ensure each item has a clear, impactful one to two-sentence summary. After each summary, include the full source URL. I use bold to highlight company names or major updates. Add spacing between news items for readability. If Perplexity's output news are all duplicates from the past news log sheet, respond appropriately with no notable AI development news in the past 24 hours.\n\n##Output Format Rule\nOUtput in text only, and start the daily news summary with \"Here's today's AI devlopment news. Today is {{$today}}...\""
+            },
+            {
+              "role": "system",
+              "content": "You are an AI news formatter. Your role is to process, check, and clean AI news results fetched from Perplexity to ensure readability and that past headlines are not repeated when checked against google sheet tool named \"Past AI News Log\" ."
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.1,
+      "position": [
+        80,
+        16
+      ],
+      "id": "969a8f1e-e0a2-424c-8c45-a3c326fc4272",
+      "name": "Message a model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "wk2NYjYbjAwlCReR",
+          "name": "News Checking Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1HcfWnSupbrR8pTCWhzeyEgnLBePhimFNiBOkzwMIUC4",
+          "mode": "list",
+          "cachedResultName": "Past AI News Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcfWnSupbrR8pTCWhzeyEgnLBePhimFNiBOkzwMIUC4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcfWnSupbrR8pTCWhzeyEgnLBePhimFNiBOkzwMIUC4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        152,
+        240
+      ],
+      "id": "55e570a2-d295-4769-8912-4b37c8819174",
+      "name": "Get row(s) in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dBIogTld01jJwu1f",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "cjkakai5@gmail.com",
+        "subject": "Daily AI News Digest",
+        "emailType": "text",
+        "message": "={{ $json.output[0].content[0].text }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        16
+      ],
+      "id": "1a6551f2-0c3c-441e-8bbd-91fe50a60d56",
+      "name": "Send a message",
+      "webhookId": "9cd7ae84-624d-4a6a-85ba-a7e0386c069c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LFcpTsg5Sli4Za8Z",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1HcfWnSupbrR8pTCWhzeyEgnLBePhimFNiBOkzwMIUC4",
+          "mode": "list",
+          "cachedResultName": "Past AI News Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcfWnSupbrR8pTCWhzeyEgnLBePhimFNiBOkzwMIUC4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1HcfWnSupbrR8pTCWhzeyEgnLBePhimFNiBOkzwMIUC4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $today }}",
+            "Headlines": "={{ $('Message a model1').item.json.output[0].content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Headlines",
+              "displayName": "Headlines",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        656,
+        16
+      ],
+      "id": "c9f08b29-bf5c-4ab5-8278-5122433f316a",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "dBIogTld01jJwu1f",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Message a model": [
+      {
+        "json": {
+          "id": "msg_9f8a7b6c5d4e3f2a1",
+          "model": "sonar-pro",
+          "created": "2026-04-12T10:15:00Z",
+          "usage": {
+            "prompt_tokens": 980,
+            "completion_tokens": 420,
+            "total_tokens": 1400
+          },
+          "search_results": [
+            {
+              "index": 0,
+              "title": "OpenAI releases new reasoning improvements for GPT models",
+              "url": "https://openai.com/blog/reasoning-update",
+              "source": "OpenAI Blog",
+              "published_date": "2026-04-11T18:30:00Z",
+              "last_updated": "2026-04-11T18:45:00Z",
+              "snippet": "OpenAI has introduced major improvements in multi-step reasoning and tool usage across its latest GPT models.",
+              "relevance_score": 0.97
+            },
+            {
+              "index": 1,
+              "title": "Anthropic enhances Claude for safer AI agents",
+              "url": "https://www.anthropic.com/news/claude-agents-update",
+              "source": "Anthropic",
+              "published_date": "2026-04-11T15:10:00Z",
+              "last_updated": "2026-04-11T15:30:00Z",
+              "snippet": "Anthropic announced updates focused on reducing hallucinations and improving agent reliability.",
+              "relevance_score": 0.94
+            },
+            {
+              "index": 2,
+              "title": "Google DeepMind unveils multimodal reasoning breakthrough",
+              "url": "https://deepmind.google/discover/blog/multimodal-reasoning",
+              "source": "Google DeepMind",
+              "published_date": "2026-04-11T12:45:00Z",
+              "last_updated": "2026-04-11T13:00:00Z",
+              "snippet": "New research shows improved reasoning across text, images, and structured data inputs.",
+              "relevance_score": 0.91
+            },
+            {
+              "index": 3,
+              "title": "Microsoft integrates advanced AI copilots into enterprise tools",
+              "url": "https://blogs.microsoft.com/ai/copilot-update",
+              "source": "Microsoft",
+              "published_date": "2026-04-11T10:20:00Z",
+              "last_updated": "2026-04-11T10:45:00Z",
+              "snippet": "Microsoft expands Copilot capabilities across enterprise software suites.",
+              "relevance_score": 0.89
+            },
+            {
+              "index": 4,
+              "title": "xAI’s Grok model updated with improved real-time reasoning",
+              "url": "https://x.ai/blog/grok-update",
+              "source": "xAI",
+              "published_date": "2026-04-11T09:00:00Z",
+              "last_updated": "2026-04-11T09:15:00Z",
+              "snippet": "xAI introduces enhancements to Grok focusing on real-time context understanding.",
+              "relevance_score": 0.88
+            }
+          ],
+          "citations": [
+            {
+              "index": 0,
+              "url": "https://openai.com/blog/reasoning-update"
+            },
+            {
+              "index": 1,
+              "url": "https://www.anthropic.com/news/claude-agents-update"
+            },
+            {
+              "index": 2,
+              "url": "https://deepmind.google/discover/blog/multimodal-reasoning"
+            },
+            {
+              "index": 3,
+              "url": "https://blogs.microsoft.com/ai/copilot-update"
+            },
+            {
+              "index": 4,
+              "url": "https://x.ai/blog/grok-update"
+            }
+          ],
+          "choices": [
+            {
+              "index": 0,
+              "message": {
+                "role": "assistant",
+                "content": "• OpenAI improved reasoning and tool usage in GPT models.\n• Anthropic enhanced Claude for safer and more reliable AI agents.\n• Google DeepMind achieved a breakthrough in multimodal reasoning.\n• Microsoft expanded enterprise AI copilots.\n• xAI upgraded Grok for better real-time reasoning.\n\nInsight: The major trend is a strong focus on reasoning, reliability, and enterprise integration across leading AI labs."
+              },
+              "finish_reason": "stop"
+            }
+          ]
+        }
+      }
+    ],
+    "Message a model1": [
+      {
+        "json": {
+          "output": [
+            {
+              "id": "msg_0aebafc5c6e6a9910069dc83572e108194931aa3cbb47771ab",
+              "content": [
+                {
+                  "annotations": [],
+                  "text": "Here's today's AI devlopment news. Today is 2026-04-13T00:00:00.000-04:00...\n\nI checked the **Past AI News Log** sheet for duplicates, but the sheet tool returned no rows (empty log), so there were no past entries available to compare against. Based on that, none of today’s items can be confirmed as duplicates, and I’m including all of them below with cleaned, non-overlapping summaries.\n\n**OpenAI** released major upgrades to GPT models’ multi-step reasoning and more reliable tool usage, aimed at improving complex task performance and agent-like workflows.  \nhttps://openai.com/blog/reasoning-update\n\n**Anthropic** updated **Claude** with changes focused on safer, more dependable agent behavior—specifically reducing hallucinations and improving reliability in multi-step tasks.  \nhttps://www.anthropic.com/news/claude-agents-update\n\n**Google DeepMind** announced a multimodal reasoning research breakthrough that improves performance when reasoning across text, images, and structured data together.  \nhttps://deepmind.google/discover/blog/multimodal-reasoning\n\n**Microsoft** expanded advanced **Copilot** capabilities deeper into its enterprise product suite, positioning copilots as more integrated assistants across business workflows.  \nhttps://blogs.microsoft.com/ai/copilot-update\n\n**xAI** shipped an updated **Grok** model emphasizing improved real-time reasoning and better context handling for time-sensitive queries and interactions.  \nhttps://x.ai/blog/grok-update",
+                  "type": "output_text",
+                  "logprobs": []
+                }
+              ],
+              "role": "assistant",
+              "status": "completed",
+              "type": "message"
+            }
+          ]
+        }
+      }
+    ],
+    "Send a message": [
+      {
+        "json": {
+          "id": "19d8562fa38cab06",
+          "threadId": "19d8562fa38cab06",
+          "labelIds": [
+            "UNREAD",
+            "SENT",
+            "INBOX"
+          ]
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Message a model1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a99bf3b4-cc81-4d1f-a799-05892a6039e3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "77e2280d81b1fcd5fadb34df02f7a18af511637cf7bcb28c2e94181872e8751e"
+  },
+  "id": "Ou29EzgOv9U0lsyi",
+  "tags": []
+}
